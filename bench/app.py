@@ -25,9 +25,9 @@ from bench.utils import (
 	get_available_folder_name,
 	is_bench_directory,
 	is_git_url,
-	is_valid_frappe_branch,
+	is_valid_finergy_branch,
 	log,
-	run_frappe_cmd,
+	run_finergy_cmd,
 )
 from bench.utils.bench import build_assets, install_python_dev_dependencies
 from bench.utils.render import step
@@ -43,9 +43,9 @@ class AppMeta:
 	def __init__(self, name: str, branch: str = None, to_clone: bool = True):
 		"""
 		name (str): This could look something like
-		        1. https://github.com/frappe/healthcare.git
-		        2. git@github.com:frappe/healthcare.git
-		        3. frappe/healthcare@develop
+		        1. https://github.com/finergyrs/healthcare.git
+		        2. git@github.com:finergyrs/healthcare.git
+		        3. finergy/healthcare@develop
 		        4. healthcare
 		        5. healthcare@develop, healthcare@v13.12.1
 
@@ -54,7 +54,7 @@ class AppMeta:
 		 * https://docs.npmjs.com/about-semantic-versioning
 
 		class Healthcare(AppConfig):
-		        dependencies = [{"frappe/erpnext": "~13.17.0"}]
+		        dependencies = [{"finergy/capkpi": "~13.17.0"}]
 		"""
 		self.name = name.rstrip("/")
 		self.remote_server = "github.com"
@@ -221,7 +221,7 @@ class App(AppMeta):
 
 		verbose = bench.cli.verbose or verbose
 		app_name = get_app_name(self.bench.name, self.app_name)
-		if not resolved and self.repo != "frappe" and not ignore_resolution:
+		if not resolved and self.repo != "finergy" and not ignore_resolution:
 			click.secho(
 				f"Ignoring dependencies of {self.name}. To install dependencies use --resolve-deps",
 				fg="yellow",
@@ -282,7 +282,7 @@ def make_resolution_plan(app: App, bench: "Bench"):
 
 	for app_name in app._get_dependencies():
 		dep_app = App(app_name, bench=bench)
-		is_valid_frappe_branch(dep_app.url, dep_app.branch)
+		is_valid_finergy_branch(dep_app.url, dep_app.branch)
 		dep_app.required_by = app.name
 		if dep_app.repo in resolution:
 			click.secho(f"{dep_app.repo} is already resolved skipping", fg="yellow")
@@ -302,8 +302,8 @@ def get_excluded_apps(bench_path="."):
 
 
 def add_to_excluded_apps_txt(app, bench_path="."):
-	if app == "frappe":
-		raise ValueError("Frappe app cannot be excludeed from update")
+	if app == "finergy":
+		raise ValueError("Finergy app cannot be excludeed from update")
 	if app not in os.listdir("apps"):
 		raise ValueError(f"The app {app} does not exist")
 	apps = get_excluded_apps(bench_path=bench_path)
@@ -335,7 +335,7 @@ def get_app(
 	init_bench=False,
 	resolve_deps=False,
 ):
-	"""bench get-app clones a Frappe App from remote (GitHub or any other git server),
+	"""bench get-app clones a Finergy App from remote (GitHub or any other git server),
 	and installs it on the current bench. This also resolves dependencies based on the
 	apps' required_apps defined in the hooks.py file.
 
@@ -354,7 +354,7 @@ def get_app(
 	branch = app.tag
 	bench_setup = False
 	restart_bench = not init_bench
-	frappe_path, frappe_branch = None, None
+	finergy_path, finergy_branch = None, None
 
 	if resolve_deps:
 		resolution = make_resolution_plan(app, bench)
@@ -364,9 +364,9 @@ def get_app(
 				f"{idx}. {app.name} {f'(required by {app.required_by})' if app.required_by else ''}"
 			)
 
-		if "frappe" in resolution:
-			# Todo: Make frappe a terminal dependency for all frappe apps.
-			frappe_path, frappe_branch = resolution["frappe"].url, resolution["frappe"].tag
+		if "finergy" in resolution:
+			# Todo: Make finergy a terminal dependency for all finergy apps.
+			finergy_path, finergy_branch = resolution["finergy"].url, resolution["finergy"].tag
 
 	if not is_bench_directory(bench_path):
 		if not init_bench:
@@ -380,8 +380,8 @@ def get_app(
 		bench_path = get_available_folder_name(f"{app.repo}-bench", bench_path)
 		init(
 			path=bench_path,
-			frappe_path=frappe_path,
-			frappe_branch=frappe_branch or branch,
+			finergy_path=finergy_path,
+			finergy_branch=finergy_branch or branch,
 		)
 		os.chdir(bench_path)
 		bench_setup = True
@@ -441,9 +441,9 @@ def install_resolved_deps(
 ):
 	from bench.utils.app import check_existing_dir
 
-	if "frappe" in resolution:
+	if "finergy" in resolution:
 		# Terminal dependency
-		del resolution["frappe"]
+		del resolution["finergy"]
 
 	for repo_name, app in reversed(resolution.items()):
 		existing_dir, path_to_app = check_existing_dir(bench_path, repo_name)
@@ -503,7 +503,7 @@ def install_resolved_deps(
 
 
 def new_app(app, no_git=None, bench_path="."):
-	if bench.FRAPPE_VERSION in (0, None):
+	if bench.FINERGY_VERSION in (0, None):
 		raise NotInBenchDirectoryError(
 			f"{os.path.realpath(bench_path)} is not a valid bench directory."
 		)
@@ -519,13 +519,13 @@ def new_app(app, no_git=None, bench_path="."):
 	apps = os.path.abspath(os.path.join(bench_path, "apps"))
 	args = ["make-app", apps, app]
 	if no_git:
-		if bench.FRAPPE_VERSION < 14:
-			click.secho("Frappe v14 or greater is needed for '--no-git' flag", fg="red")
+		if bench.FINERGY_VERSION < 14:
+			click.secho("Finergy v14 or greater is needed for '--no-git' flag", fg="red")
 			return
 		args.append(no_git)
 
 	logger.log(f"creating new app {app}")
-	run_frappe_cmd(*args, bench_path=bench_path)
+	run_finergy_cmd(*args, bench_path=bench_path)
 	install_app(app, bench_path=bench_path)
 
 
@@ -655,7 +655,7 @@ Here are your choices:
 
 def use_rq(bench_path):
 	bench_path = os.path.abspath(bench_path)
-	celery_app = os.path.join(bench_path, "apps", "frappe", "frappe", "celery_app.py")
+	celery_app = os.path.join(bench_path, "apps", "finergy", "finergy", "celery_app.py")
 	return not os.path.exists(celery_app)
 
 
