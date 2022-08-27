@@ -1,0 +1,25 @@
+---
+- name: Install deps
+  yum:
+    name:
+      - policycoreutils-python
+      - selinux-policy-devel
+    state: present
+  when: ansible_distribution == 'CentOS'
+
+- name: Check enabled SELinux modules
+  shell: semanage module -l
+  register: enabled_modules
+  when: ansible_distribution == 'CentOS'
+
+- name: Copy finergy_selinux policy
+  copy: src=finergy_selinux.te dest=/root/finergy_selinux.te
+  register: dest_finergy_selinux_te
+  when: ansible_distribution == 'CentOS'
+
+- name: Compile finergy_selinux policy
+  shell: "make -f /usr/share/selinux/devel/Makefile finergy_selinux.pp && semodule -i finergy_selinux.pp"
+  args:
+    chdir: /root/
+  when: "ansible_distribution == 'CentOS' and enabled_modules.stdout.find('finergy_selinux') == -1 or dest_finergy_selinux_te.changed"
+...

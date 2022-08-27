@@ -1,4 +1,4 @@
-### ERPNext/Frappe Branching
+### CapKPI/Finergy Branching
 
 #### Branch Description
  - `develop` Branch: All new feature developments will go in develop branch

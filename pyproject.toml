@@ -1,11 +1,11 @@
 [project]
-name = "frappe-bench"
-description = "CLI to manage Multi-tenant deployments for Frappe apps"
+name = "finergy-bench"
+description = "CLI to manage Multi-tenant deployments for Finergy apps"
 readme = "README.md"
 license = "GPL-3.0-only"
 requires-python = ">=3.7"
 authors = [
-    { name = "Frappe Technologies Pvt Ltd", email = "developers@frappe.io" },
+    { name = "Finergy Reporting Solustions SAS", email = "developers@finergy-rs.fr" },
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -37,10 +37,10 @@ dynamic = [
 bench = "bench.cli:cli"
 
 [project.urls]
-Changelog = "https://github.com/frappe/bench/releases"
-Documentation = "https://frappeframework.com/docs/user/en/bench"
-Homepage = "https://frappe.io/bench"
-Source = "https://github.com/frappe/bench"
+Changelog = "https://github.com/finergyrs/bench/releases"
+Documentation = "https://finergy-rs.fr/docs/user/en/bench"
+Homepage = "https://finergy-rs.fr/bench"
+Source = "https://github.com/finergyrs/bench"
 
 [build-system]
 requires = [

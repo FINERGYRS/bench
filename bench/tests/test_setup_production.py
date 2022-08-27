@@ -56,7 +56,7 @@ class TestSetupProduction(TestBenchBase):
 			f = f.read()
 
 			for key in (
-				f"upstream {bench_name}-frappe",
+				f"upstream {bench_name}-finergy",
 				f"upstream {bench_name}-socketio-server",
 			):
 				self.assertTrue(key in f)
@@ -68,7 +68,7 @@ class TestSetupProduction(TestBenchBase):
 		)
 
 	def assert_sudoers(self, user):
-		sudoers_file = "/etc/sudoers.d/frappe"
+		sudoers_file = "/etc/sudoers.d/finergy"
 		service = which("service")
 		nginx = which("nginx")
 
@@ -100,7 +100,7 @@ class TestSetupProduction(TestBenchBase):
 			f = f.read()
 
 			tests = [
-				f"program:{bench_name}-frappe-web",
+				f"program:{bench_name}-finergy-web",
 				f"program:{bench_name}-redis-cache",
 				f"program:{bench_name}-redis-queue",
 				f"program:{bench_name}-redis-socketio",
@@ -115,20 +115,20 @@ class TestSetupProduction(TestBenchBase):
 			if use_rq:
 				tests.extend(
 					[
-						f"program:{bench_name}-frappe-schedule",
-						f"program:{bench_name}-frappe-default-worker",
-						f"program:{bench_name}-frappe-short-worker",
-						f"program:{bench_name}-frappe-long-worker",
+						f"program:{bench_name}-finergy-schedule",
+						f"program:{bench_name}-finergy-default-worker",
+						f"program:{bench_name}-finergy-short-worker",
+						f"program:{bench_name}-finergy-long-worker",
 					]
 				)
 
 			else:
 				tests.extend(
 					[
-						f"program:{bench_name}-frappe-workerbeat",
-						f"program:{bench_name}-frappe-worker",
-						f"program:{bench_name}-frappe-longjob-worker",
-						f"program:{bench_name}-frappe-async-worker",
+						f"program:{bench_name}-finergy-workerbeat",
+						f"program:{bench_name}-finergy-worker",
+						f"program:{bench_name}-finergy-longjob-worker",
+						f"program:{bench_name}-finergy-async-worker",
 					]
 				)
 
@@ -144,7 +144,7 @@ class TestSetupProduction(TestBenchBase):
 			out = get_cmd_output("supervisorctl status")
 
 		tests = [
-			r"{bench_name}-web:{bench_name}-frappe-web[\s]+RUNNING",
+			r"{bench_name}-web:{bench_name}-finergy-web[\s]+RUNNING",
 			# Have commented for the time being. Needs to be uncommented later on. Bench is failing on travis because of this.
 			# It works on one bench and fails on another.giving FATAL or BACKOFF (Exited too quickly (process log may have details))
 			# "{bench_name}-web:{bench_name}-node-socketio[\s]+RUNNING",
@@ -156,20 +156,20 @@ class TestSetupProduction(TestBenchBase):
 		if use_rq:
 			tests.extend(
 				[
-					r"{bench_name}-workers:{bench_name}-frappe-schedule[\s]+RUNNING",
-					r"{bench_name}-workers:{bench_name}-frappe-default-worker-0[\s]+RUNNING",
-					r"{bench_name}-workers:{bench_name}-frappe-short-worker-0[\s]+RUNNING",
-					r"{bench_name}-workers:{bench_name}-frappe-long-worker-0[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-schedule[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-default-worker-0[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-short-worker-0[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-long-worker-0[\s]+RUNNING",
 				]
 			)
 
 		else:
 			tests.extend(
 				[
-					r"{bench_name}-workers:{bench_name}-frappe-workerbeat[\s]+RUNNING",
-					r"{bench_name}-workers:{bench_name}-frappe-worker[\s]+RUNNING",
-					r"{bench_name}-workers:{bench_name}-frappe-longjob-worker[\s]+RUNNING",
-					r"{bench_name}-workers:{bench_name}-frappe-async-worker[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-workerbeat[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-worker[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-longjob-worker[\s]+RUNNING",
+					r"{bench_name}-workers:{bench_name}-finergy-async-worker[\s]+RUNNING",
 				]
 			)
 
